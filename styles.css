@@ -12,6 +12,12 @@
   --font-display: "Cormorant Garamond", Georgia, serif;
   --radius: 12px;
   --shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  /* Z-index stack */
+  --z-scroll-progress: 400;
+  --z-cookie: 200;
+  --z-mobile-nav-drawer: 125;
+  --z-header: 120;
+  --z-mobile-nav-overlay: 110;
 }
 
 *,
@@ -52,10 +58,9 @@ body {
   height: 3px;
   width: 0%;
   max-width: 100%;
-  z-index: 400;
+  z-index: var(--z-scroll-progress);
   pointer-events: none;
   background: var(--accent);
-  /* Только вниз — горизонтальное свечение даёт полосу и скролл на узких экранах */
   box-shadow: 0 4px 14px rgba(196, 165, 116, 0.42);
   transform-origin: left center;
 }
@@ -158,7 +163,7 @@ a:hover {
 .header {
   position: sticky;
   top: 0;
-  z-index: 120;
+  z-index: var(--z-header);
   background: rgba(15, 20, 18, 0.92);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
@@ -303,7 +308,7 @@ a:hover {
 .mobile-nav-overlay {
   position: fixed;
   inset: 0;
-  z-index: 110;
+  z-index: var(--z-mobile-nav-overlay);
   background: rgba(0, 0, 0, 0.52);
   opacity: 0;
   visibility: hidden;
@@ -320,7 +325,7 @@ body.nav-open .mobile-nav-overlay {
   top: 0;
   right: 0;
   bottom: 0;
-  z-index: 125;
+  z-index: var(--z-mobile-nav-drawer);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -657,7 +662,7 @@ body.nav-open .burger span:nth-child(3) {
 
 @media (max-width: 992px) {
   .section {
-    padding: 12rem 0;
+    padding: 3rem 0;
   }
 }
 
@@ -2160,7 +2165,7 @@ button.diploma-frame.diploma-frame--thumb:hover img {
   flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
-  z-index: 200;
+  z-index: var(--z-cookie);
   opacity: 0;
   pointer-events: none;
   transition: transform 0.35s ease, opacity 0.35s ease;

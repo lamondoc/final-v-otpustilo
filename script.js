@@ -1,4 +1,12 @@
 (function () {
+  // === Configuration Constants ===
+  const PARALLAX_OFFSET = 0.16; // Hero background parallax coefficient
+  const SCROLL_THRESHOLD = 32; // Pixel threshold to show header shadow
+  const SCROLL_END_DELAY = 120; // Debounce delay for carousel scroll (ms)
+  const REVEAL_MARGIN = "0px 0px -10% 0px"; // IntersectionObserver margin for reveal effect
+  const REVEAL_THRESHOLD = 0.06; // IntersectionObserver threshold for reveal
+  const STRIP_SCROLL_DELAY = 100; // Debounce delay for diploma strip scroll (ms)
+
   var burger = document.getElementById("burger");
   var nav = document.getElementById("nav");
   var yearEl = document.getElementById("year");
@@ -203,7 +211,7 @@
     function onScroll() {
       updateNav();
       clearTimeout(scrollEndTimer);
-      scrollEndTimer = setTimeout(updateNav, 120);
+      scrollEndTimer = setTimeout(updateNav, SCROLL_END_DELAY);
     }
 
     function applyMode() {
@@ -452,7 +460,7 @@
             currentIndex = best;
             updateArrowDisabled();
           }
-        }, 100);
+        }, STRIP_SCROLL_DELAY);
       },
       { passive: true }
     );
@@ -479,10 +487,10 @@
       }
       if (heroBg) {
         heroBg.style.transform =
-          "translate3d(0, " + Math.round(y * 0.16) + "px, 0) scale(1.08)";
+          "translate3d(0, " + Math.round(y * PARALLAX_OFFSET) + "px, 0) scale(1.08)";
       }
       if (headerEl) {
-        headerEl.classList.toggle("is-scrolled", y > 32);
+        headerEl.classList.toggle("is-scrolled", y > SCROLL_THRESHOLD);
       }
     }
 
@@ -505,7 +513,7 @@
           }
         });
       },
-      { rootMargin: "0px 0px -10% 0px", threshold: 0.06 }
+      { rootMargin: REVEAL_MARGIN, threshold: REVEAL_THRESHOLD }
     );
 
     document.querySelectorAll(".reveal-on-scroll").forEach(function (el) {

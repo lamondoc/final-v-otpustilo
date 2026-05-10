@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-Host: https://otpustilo-nvrsk.ru
 Sitemap: https://otpustilo-nvrsk.ru/sitemap.xml
