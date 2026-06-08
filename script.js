@@ -9,6 +9,7 @@
 
   var burger = document.getElementById("burger");
   var nav = document.getElementById("nav");
+  var mobileNav = document.querySelector(".mobile-nav__list");
   var yearEl = document.getElementById("year");
   var cookieBar = document.getElementById("cookie");
   var cookieAccept = document.getElementById("cookie-accept");
@@ -23,6 +24,7 @@
 
   var mobileOverlay = document.getElementById("mobile-nav-overlay");
   var mobileDrawer = document.getElementById("mobile-nav-drawer");
+  var logoLink = document.querySelector(".logo");
 
   function setMobileNavOpen(open) {
     document.body.classList.toggle("nav-open", open);
@@ -42,14 +44,16 @@
     setMobileNavOpen(false);
   }
 
-  if (burger && nav) {
+  if (burger) {
     burger.addEventListener("click", function (e) {
       e.stopPropagation();
       var open = !document.body.classList.contains("nav-open");
       setMobileNavOpen(open);
     });
+  }
 
-    nav.querySelectorAll("a").forEach(function (link) {
+  if (mobileNav) {
+    mobileNav.querySelectorAll("a").forEach(function (link) {
       link.addEventListener("click", function () {
         closeMobileNav();
       });
@@ -58,6 +62,23 @@
 
   if (mobileOverlay) {
     mobileOverlay.addEventListener("click", closeMobileNav);
+  }
+
+  // Logo hover effect removed - using CSS instead
+
+  // Logo tap effect for mobile (add/remove hovered class on touch/click)
+  if (logoLink) {
+    logoLink.addEventListener("touchstart", function (e) {
+      logoLink.classList.add("logo--hovered");
+    }, { passive: true });
+    
+    logoLink.addEventListener("touchend", function () {
+      logoLink.classList.remove("logo--hovered");
+    });
+    
+    logoLink.addEventListener("mouseleave", function () {
+      logoLink.classList.remove("logo--hovered");
+    });
   }
 
   document.addEventListener("keydown", function (e) {
@@ -89,7 +110,7 @@
     }
   })();
 
-  var cookieKey = "cookie-consent-demo";
+  var cookieKey = "cookie-consent-v1";
   try {
     if (cookieBar && !localStorage.getItem(cookieKey)) {
       requestAnimationFrame(function () {
@@ -131,7 +152,15 @@
       if (!bookingConsent.checked) {
         return;
       }
-      window.open(dikidiUrl, "_blank", "noopener,noreferrer");
+      // iOS Safari workaround: use direct navigation for better compatibility
+      if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+        window.location.href = dikidiUrl;
+      } else {
+        var newWindow = window.open(dikidiUrl, "_blank");
+        if (!newWindow) {
+          window.location.href = dikidiUrl;
+        }
+      }
     });
   }
 
@@ -264,6 +293,7 @@
       var id = btn.getAttribute("data-open-dialog");
       var dlg = id ? document.getElementById(id) : null;
       if (dlg && typeof dlg.showModal === "function") {
+        dlg._opener = btn;
         dlg.showModal();
       }
     });
@@ -273,7 +303,11 @@
     el.addEventListener("click", function () {
       var dlg = el.closest("dialog");
       if (dlg && typeof dlg.close === "function") {
+        var opener = dlg._opener;
         dlg.close();
+        if (opener) {
+          opener.focus();
+        }
       }
     });
   });
@@ -474,6 +508,7 @@
     var heroBg = document.querySelector(".hero__bg");
     var headerEl = document.querySelector(".header");
     var scrollTicking = false;
+    var lastY = 0;
 
     function updateScrollEffects() {
       scrollTicking = false;
@@ -484,10 +519,12 @@
 
       if (progressEl) {
         progressEl.style.width = ratio * 100 + "%";
+        progressEl.classList.toggle("is-visible", y > 100);
       }
-      if (heroBg) {
+      if (heroBg && y !== lastY) {
         heroBg.style.transform =
           "translate3d(0, " + Math.round(y * PARALLAX_OFFSET) + "px, 0) scale(1.08)";
+        lastY = y;
       }
       if (headerEl) {
         headerEl.classList.toggle("is-scrolled", y > SCROLL_THRESHOLD);
@@ -519,11 +556,34 @@
     document.querySelectorAll(".reveal-on-scroll").forEach(function (el) {
       revealObserver.observe(el);
     });
+
+    // Click on scroll-progress to go to top (for non-reduced motion users)
+    if (progressEl) {
+      progressEl.addEventListener("click", function () {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+      });
+    }
   } else {
     document.querySelectorAll(".reveal-on-scroll").forEach(function (el) {
       el.classList.add("is-inview");
     });
   }
+
+  // Scroll progress click handler for all users (including reduced motion)
+  (function () {
+    var progressEl = document.getElementById("scroll-progress");
+    if (!progressEl) return;
+    
+    progressEl.addEventListener("click", function () {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    });
+  })();
 
   // Smooth scroll to top for logo links
   document.querySelectorAll('a[href="#top"]').forEach(function (link) {
