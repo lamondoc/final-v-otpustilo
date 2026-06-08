@@ -37,7 +37,15 @@
     if (mobileOverlay) {
       mobileOverlay.setAttribute("aria-hidden", open ? "false" : "true");
     }
-    document.body.style.overflow = open ? "hidden" : "";
+    
+    // Compensate for scrollbar width to prevent layout shift
+    if (open) {
+      var scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.paddingRight = scrollbarWidth + "px";
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+    }
   }
 
   function closeMobileNav() {
