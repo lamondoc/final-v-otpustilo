@@ -42,6 +42,7 @@
     if (open) {
       var scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
       document.body.style.paddingRight = scrollbarWidth + "px";
+      document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
       document.body.style.paddingRight = "";
@@ -123,12 +124,29 @@
     if (cookieBar && !localStorage.getItem(cookieKey)) {
       requestAnimationFrame(function () {
         cookieBar.classList.add("is-visible");
+        document.addEventListener("keydown", trapCookieFocus);
+        var firstBtn = cookieBar.querySelector("button");
+        if (firstBtn) firstBtn.focus();
       });
     }
   } catch (e) {}
 
   function hideCookie() {
     if (cookieBar) cookieBar.classList.remove("is-visible");
+    document.removeEventListener("keydown", trapCookieFocus);
+  }
+
+  function trapCookieFocus(e) {
+    if (e.key !== "Tab" || !cookieBar || !cookieBar.classList.contains("is-visible")) return;
+    var focusable = cookieBar.querySelectorAll("button, a[href], input, [tabindex]:not([tabindex='-1'])");
+    if (!focusable.length) return;
+    var first = focusable[0];
+    var last = focusable[focusable.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+    } else {
+      if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
   }
 
   if (cookieAccept) {
@@ -160,12 +178,16 @@
       if (!bookingConsent.checked) {
         return;
       }
-      // iOS Safari workaround: use direct navigation for better compatibility
-      if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+      function isIOS() {
+        var ua = navigator.userAgent || "";
+        var pl = navigator.platform || "";
+        return /iPhone|iPad|iPod/.test(ua) || /iPhone|iPad|iPod/.test(pl) || (pl === "MacIntel" && navigator.maxTouchPoints > 1);
+      }
+      if (isIOS()) {
         window.location.href = dikidiUrl;
       } else {
         var newWindow = window.open(dikidiUrl, "_blank");
-        if (!newWindow) {
+        if (!newWindow || newWindow.closed) {
           window.location.href = dikidiUrl;
         }
       }
@@ -276,11 +298,15 @@
     });
 
     track.addEventListener("scroll", onScroll, { passive: true });
+    var resizeTimer;
     window.addEventListener("resize", function () {
-      applyMode();
-      if (mq.matches) {
-        updateNav();
-      }
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        applyMode();
+        if (mq.matches) {
+          updateNav();
+        }
+      }, 150);
     });
 
     if (typeof mq.addEventListener === "function") {

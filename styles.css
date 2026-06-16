@@ -36,8 +36,13 @@ textarea {
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 30px;
   overflow-x: clip;
   max-width: 100%;
+}
+
+#services {
+  scroll-margin-top: 0;
 }
 
 body {
@@ -94,7 +99,7 @@ html.has-scroll-fx .reveal-on-scroll.is-inview {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scroll-progress {
+.scroll-progress {
     display: none;
     animation: none;
   }
@@ -110,6 +115,7 @@ html.has-scroll-fx .reveal-on-scroll.is-inview {
 
   .hero__bg {
     transform: none !important;
+    will-change: auto;
   }
 }
 
@@ -132,38 +138,6 @@ a:hover {
 .container {
   width: min(1120px, 100% - 40px);
   margin-inline: auto;
-}
-
-.top-bar {
-  background: var(--bg-elevated);
-  border-bottom: 1px solid var(--line);
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.top-bar__inner {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 0;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.top-bar__phone {
-  color: var(--text);
-  font-weight: 600;
-}
-
-.top-bar__reviews {
-  color: var(--accent);
-  font-weight: 600;
-  font-size: 0.82rem;
-  white-space: nowrap;
-}
-
-.top-bar__reviews:hover {
-  color: var(--accent-hover);
 }
 
 .header {
@@ -510,16 +484,6 @@ body.nav-open .mobile-nav-drawer {
   color: var(--accent);
 }
 
-.btn--light {
-  background: var(--text);
-  color: var(--bg);
-}
-
-.btn--light:hover {
-  background: var(--accent-hover);
-  color: #1a1510;
-}
-
 .btn--block {
   width: 100%;
 }
@@ -766,6 +730,10 @@ body.nav-open .burger span:nth-child(3) {
   
 section#about-me.section {
   padding-bottom: 2rem;
+}
+
+section#about.section {
+  padding-bottom: 1rem;
 }
 
 section#booking.section {
@@ -1288,7 +1256,13 @@ dialog::-webkit-scrollbar {
 }
 
 @media (max-width: 768px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+
   .split__panel {
+    order: 2;
+    margin-top: 1rem;
     min-height: auto;
     padding: 1.75rem 1.5rem;
   }
@@ -1397,48 +1371,6 @@ dialog::-webkit-scrollbar {
   color: var(--accent-hover);
 }
 
-.form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.field--full {
-  grid-column: 1 / -1;
-}
-
-.field__label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.field input,
-.field select,
-.field textarea {
-  font: inherit;
-  padding: 12px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--text);
-}
-
-.field input:focus,
-.field select:focus,
-.field textarea:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-
 .consent {
   display: flex;
   align-items: flex-start;
@@ -1542,20 +1474,6 @@ dialog::-webkit-scrollbar {
   color: var(--text);
 }
 
-.form__note {
-  grid-column: 1 / -1;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin: 0;
-}
-
-.form__note code {
-  font-size: 0.85em;
-  background: var(--bg);
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
 .about-me__text {
   max-width: 42rem;
   margin: 0 auto 2.5rem;
@@ -1629,22 +1547,6 @@ dialog::-webkit-scrollbar {
   object-fit: cover;
   object-position: center;
   display: block;
-}
-
-.about-me__photo--empty {
-  min-height: 280px;
-  flex-direction: column;
-  gap: 0.5rem;
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  text-align: center;
-  padding: 1.5rem;
-}
-
-.about-me__photo--empty::before {
-  content: "📷";
-  font-size: 2.5rem;
-  opacity: 0.5;
 }
 
 /* Один grid-элемент со subgrid (не display:contents) — в Chrome на широком экране иначе ломалось выравнивание строк с колонкой фото */
@@ -2188,20 +2090,6 @@ button.diploma-frame.diploma-frame--thumb:hover img {
   background: var(--surface);
 }
 
-.map-placeholder {
-  aspect-ratio: 16 / 10;
-  border-radius: var(--radius);
-  border: 1px dashed var(--line);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 1.5rem;
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  background: var(--surface);
-}
-
 .footer {
   border-top: 1px solid var(--line);
   padding: 2.5rem 0;
@@ -2399,60 +2287,6 @@ button.diploma-frame.diploma-frame--thumb:hover img {
 
   .section {
     padding: 1.5rem 0;
-  }
-}
-
-@media (max-width: 768px) {
-  html {
-    font-size: 14px;
-  }
-
-  .container {
-    max-width: 90%;
-  }
-
-  .section {
-    padding: 1.5rem 0;
-  }
-
-  .header__inner {
-    gap: 0.35rem;
-    padding: 14px 0;
-  }
-
-  .header__toolbar {
-    gap: 0.5rem;
-    flex: 1 1 auto;
-    justify-content: flex-end;
-  }
-
-  .logo--header-wide {
-    font-size: clamp(2.5rem, 5vw, 3.75rem); /* Размер заголовка Hero */
-    flex: 0 1 auto;
-    margin-right: auto;
-  }
-
-  .btn--header {
-    font-size: 0.8rem;
-    padding: 0.5rem 0.95rem;
-    flex: 0 0 auto;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  .burger span {
-    width: 24px;
-    height: 2px;
-  }
-
-  .split {
-    gap: 2rem;
-    grid-template-columns: 1fr;
-  }
-
-  .split__panel {
-    order: 2;
-    margin-top: 2rem;
   }
 }
 
