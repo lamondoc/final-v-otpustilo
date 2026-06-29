@@ -356,24 +356,18 @@
 
   (function initDiplomaLightbox() {
     var dlg = document.getElementById("diploma-lightbox");
-    var imgEl = document.getElementById("diploma-lightbox-img");
     var strip = document.getElementById("diploma-lightbox-strip");
     var prevBtn = document.getElementById("diploma-prev");
     var nextBtn = document.getElementById("diploma-next");
-    if (!dlg || !imgEl || !strip || !prevBtn || !nextBtn) return;
+    if (!dlg || !strip || !prevBtn || !nextBtn) return;
 
     var thumbs = Array.prototype.slice.call(
       document.querySelectorAll(".about-me__diploma .diploma-frame--thumb")
     );
     if (!thumbs.length) return;
 
-    var mq = window.matchMedia("(max-width: 992px)");
+    var mqMobile = window.matchMedia("(max-width: 992px)");
     var currentIndex = 0;
-
-    function getThumbImg(i) {
-      var b = thumbs[i];
-      return b ? b.querySelector("img") : null;
-    }
 
     function ensureStripSlides() {
       if (strip.children.length) return;
@@ -403,21 +397,21 @@
       });
     }
 
-    function applyDesktopView() {
-      var srcImg = getThumbImg(currentIndex);
-      if (!srcImg) return;
-      imgEl.src = srcImg.currentSrc || srcImg.getAttribute("src") || "";
-      imgEl.alt = "";
-    }
-
     function scrollStripToIndex(behavior) {
       var slide = strip.children[currentIndex];
       if (!slide) return;
       slide.scrollIntoView({
         block: "center",
+        inline: "center",
         behavior: behavior === undefined ? "auto" : behavior,
-        inline: "nearest",
       });
+    }
+
+    function updateActiveSlide() {
+      var slides = strip.children;
+      for (var i = 0; i < slides.length; i++) {
+        slides[i].classList.toggle("is-active", i === currentIndex);
+      }
     }
 
     function updateArrowDisabled() {
@@ -426,13 +420,10 @@
       nextBtn.disabled = currentIndex >= last;
     }
 
-    function refreshView(scrollBehavior) {
-      if (mq.matches) {
-        syncStripFromThumbs();
-        scrollStripToIndex(scrollBehavior);
-      } else {
-        applyDesktopView();
-      }
+    function refreshView(behavior) {
+      syncStripFromThumbs();
+      scrollStripToIndex(behavior);
+      updateActiveSlide();
       updateArrowDisabled();
     }
 
@@ -440,26 +431,25 @@
       var idx = thumbs.indexOf(btn);
       if (idx < 0) return;
       currentIndex = idx;
-      if (mq.matches) {
-        syncStripFromThumbs();
-      } else {
-        applyDesktopView();
-      }
+      syncStripFromThumbs();
       updateArrowDisabled();
       if (typeof dlg.showModal === "function") {
         dlg.showModal();
       }
-      if (mq.matches) {
+      document.body.style.overflow = "hidden";
+      dlg.addEventListener("close", function onClose() {
+        document.body.style.overflow = "";
+        dlg.removeEventListener("close", onClose);
+      });
+      requestAnimationFrame(function () {
         requestAnimationFrame(function () {
-          requestAnimationFrame(function () {
-            scrollStripToIndex("auto");
-          });
+          scrollStripToIndex("auto");
+          updateActiveSlide();
         });
-      }
+      });
     }
 
     function scrollBehaviorForNav() {
-      if (!mq.matches) return "auto";
       return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
     }
 
@@ -502,30 +492,63 @@
       });
     });
 
+    strip.addEventListener("wheel", function (e) {
+      if (!dlg.open) return;
+      e.preventDefault();
+      if (e.deltaY > 0 || e.deltaX > 0) {
+        if (!nextBtn.disabled) nextBtn.click();
+      } else if (e.deltaY < 0 || e.deltaX < 0) {
+        if (!prevBtn.disabled) prevBtn.click();
+      }
+    }, { passive: false });
+
+    dlg.addEventListener("wheel", function (e) {
+      if (!dlg.open) return;
+      e.preventDefault();
+    }, { passive: false });
+
     var stripScrollTimer;
     strip.addEventListener(
       "scroll",
       function () {
-        if (!mq.matches || !dlg.open) return;
+        if (!dlg.open) return;
         clearTimeout(stripScrollTimer);
         stripScrollTimer = setTimeout(function () {
           var slides = strip.children;
           if (!slides.length) return;
           var rect = strip.getBoundingClientRect();
-          var mid = rect.top + strip.clientHeight / 2;
-          var best = 0;
-          var bestDist = 1e9;
-          for (var i = 0; i < slides.length; i++) {
-            var r = slides[i].getBoundingClientRect();
-            var c = r.top + r.height / 2;
-            var d = Math.abs(c - mid);
-            if (d < bestDist) {
-              bestDist = d;
-              best = i;
+          var isHorizontal = !mqMobile.matches;
+          var mid, best, bestDist;
+          if (isHorizontal) {
+            mid = rect.left + strip.clientWidth / 2;
+            best = 0;
+            bestDist = 1e9;
+            for (var i = 0; i < slides.length; i++) {
+              var r = slides[i].getBoundingClientRect();
+              var c = r.left + r.width / 2;
+              var d = Math.abs(c - mid);
+              if (d < bestDist) {
+                bestDist = d;
+                best = i;
+              }
+            }
+          } else {
+            mid = rect.top + strip.clientHeight / 2;
+            best = 0;
+            bestDist = 1e9;
+            for (var i = 0; i < slides.length; i++) {
+              var r = slides[i].getBoundingClientRect();
+              var c = r.top + r.height / 2;
+              var d = Math.abs(c - mid);
+              if (d < bestDist) {
+                bestDist = d;
+                best = i;
+              }
             }
           }
           if (best !== currentIndex) {
             currentIndex = best;
+            updateActiveSlide();
             updateArrowDisabled();
           }
         }, STRIP_SCROLL_DELAY);

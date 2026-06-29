@@ -1610,13 +1610,40 @@ button.diploma-frame.diploma-frame--thumb {
   font: inherit;
   color: inherit;
   text-align: left;
-  cursor: zoom-in;
+  cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: border-color 0.2s;
+  transition: border-color 0.3s;
+  position: relative;
+}
+
+button.diploma-frame.diploma-frame--thumb::after {
+  content: "Просмотр";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 20, 18, 0.65);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  opacity: 0;
+  transition: opacity 0.3s;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+button.diploma-frame.diploma-frame--thumb:hover::after {
+  opacity: 1;
 }
 
 button.diploma-frame.diploma-frame--thumb:hover {
   border-color: rgba(196, 165, 116, 0.45);
+}
+
+button.diploma-frame.diploma-frame--thumb:hover img {
+  transform: scale(1.05);
 }
 
 button.diploma-frame.diploma-frame--thumb:focus-visible {
@@ -1632,7 +1659,7 @@ button.diploma-frame.diploma-frame--thumb:focus-visible {
   min-height: 0;
   /* Базовый фильтр для всех дипломов: сильное приглушение белого */
   filter: sepia(15%) contrast(0.85) brightness(0.85) saturate(0.9);
-  transition: filter 0.3s ease;
+  transition: filter 0.3s ease, transform 0.3s ease;
 }
 
 /* 1-й и 5-й дипломы: оставляем ярче, так как они, видимо, уже темные или нормальные */
@@ -1723,7 +1750,10 @@ button.diploma-frame.diploma-frame--thumb:hover img {
   padding: 2.75rem 1rem 1rem;
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: linear-gradient(165deg, var(--surface), var(--bg-elevated));
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(196, 165, 116, 0.22) 0%, rgba(196, 165, 116, 0.1) 40%, rgba(196, 165, 116, 0) 80%),
+    radial-gradient(ellipse 60% 40% at 100% 50%, rgba(80, 120, 100, 0.12) 0%, rgba(80, 120, 100, 0.05) 40%, rgba(80, 120, 100, 0) 80%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-elevated) 100%);
   box-shadow: var(--shadow);
   box-sizing: border-box;
 }
@@ -1843,6 +1873,35 @@ button.diploma-frame.diploma-frame--thumb:hover img {
   object-fit: contain;
   /* При открытии диплома показываем его в оригинальном цвете */
   filter: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.diploma-lightbox__img--exit-left {
+  opacity: 0;
+  transform: translateX(-40px);
+}
+
+.diploma-lightbox__img--exit-right {
+  opacity: 0;
+  transform: translateX(40px);
+}
+
+.diploma-lightbox__img--enter-left {
+  animation: diplomaEnterLeft 0.35s ease forwards;
+}
+
+.diploma-lightbox__img--enter-right {
+  animation: diplomaEnterRight 0.35s ease forwards;
+}
+
+@keyframes diplomaEnterLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes diplomaEnterRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 .diploma-lightbox__strip {
@@ -1852,6 +1911,7 @@ button.diploma-frame.diploma-frame--thumb:hover img {
   overflow-x: hidden;
   scroll-snap-type: y mandatory;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
@@ -1878,6 +1938,11 @@ button.diploma-frame.diploma-frame--thumb:hover img {
   align-items: center;
   justify-content: center;
   padding: 0.35rem 0;
+  transition: transform 0.35s ease;
+}
+
+.diploma-lightbox__slide.is-active {
+  transform: scale(1.06);
 }
 
 .diploma-lightbox__slide img {
@@ -1892,32 +1957,59 @@ button.diploma-frame.diploma-frame--thumb:hover img {
   transition: filter 0.3s ease;
 }
 
-.diploma-lightbox__slide:nth-child(1) img,
-.diploma-lightbox__slide:nth-child(5) img {
-  filter: sepia(5%) contrast(0.98) brightness(0.98);
-}
-
-.diploma-lightbox__slide:nth-child(8) img {
-  filter: sepia(0%) contrast(1.02) brightness(1.05);
-}
-
-.diploma-lightbox__slide.is-active img,
-.diploma-lightbox__slide:hover img {
-  filter: sepia(0%) contrast(1) brightness(1) saturate(1) !important;
-}
-
 @media (min-width: 993px) {
   .diploma-lightbox__viewport--desktop {
-    display: flex;
+    display: none !important;
   }
 
   .diploma-lightbox__viewport--mobile {
-    display: none !important;
+    display: block;
+    height: 100%;
+    min-height: 0;
   }
 
   .diploma-lightbox__stage {
     flex-direction: row;
     min-height: min(70vh, 660px);
+  }
+
+  .diploma-lightbox__strip {
+    flex-direction: row;
+    max-height: none;
+    height: 100%;
+    overflow-y: hidden;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    gap: 1.5rem;
+    padding: 1rem 2rem;
+    scrollbar-width: none;
+  }
+
+  .diploma-lightbox__strip::-webkit-scrollbar {
+    display: none;
+  }
+
+  .diploma-lightbox__slide {
+    scroll-snap-align: center;
+    flex-shrink: 0;
+    width: 70%;
+    max-width: 600px;
+    min-height: auto;
+    padding: 0.5rem;
+    transition: transform 0.35s ease;
+  }
+
+  .diploma-lightbox__slide img {
+    max-height: min(60vh, 520px);
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    transition: transform 0.35s ease;
+  }
+
+  .diploma-lightbox__slide.is-active {
+    transform: scale(1.04);
   }
 }
 
