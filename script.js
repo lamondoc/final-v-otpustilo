@@ -37,14 +37,12 @@
     if (mobileOverlay) {
       mobileOverlay.setAttribute("aria-hidden", open ? "false" : "true");
     }
-    
+
     // Compensate for scrollbar width to prevent layout shift
     if (open) {
       var scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
       document.body.style.paddingRight = scrollbarWidth + "px";
-      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "";
       document.body.style.paddingRight = "";
     }
   }

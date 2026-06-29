@@ -225,7 +225,6 @@ a:hover {
   .logo--header-wide .logo__image {
     width: clamp(200px, 38vw, 340px) !important;
     max-height: 145px !important;
-    margin-top: -8px;
     margin-bottom: -18px;
   }
   
@@ -553,7 +552,7 @@ body.nav-open .burger span:nth-child(3) {
 @media (max-width: 768px) {
   .hero {
     min-height: auto;
-    padding: 4rem 0 3.5rem;
+    padding: 4.5rem 0 3.5rem;
   }
 }
 
@@ -2366,6 +2365,39 @@ button.diploma-frame.diploma-frame--thumb:hover img {
     padding: 0.55rem 1.15rem;
     flex: 0 0 auto;
     text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .header__inner {
+    gap: 0.35rem;
+    padding: 8px 0;
+  }
+
+  .header__toolbar {
+    gap: 0.5rem;
+    flex: 1 1 auto;
+    justify-content: flex-end;
+  }
+
+  .logo--header-wide {
+    font-size: clamp(2.5rem, 5vw, 3.75rem);
+    flex: 0 1 auto;
+    margin-right: auto;
+    margin-top: -4px;
+  }
+
+  .btn--header {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.95rem;
+    flex: 0 0 auto;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .burger span {
+    width: 24px;
+    height: 2px;
   }
 }
 
